@@ -1,0 +1,245 @@
+{
+    "5261918243": {
+        "chat_id": 5261918243,
+        "transactions": [
+            {
+                "type": "pemasukan",
+                "amount": 25000.0,
+                "timestamp": "2025-10-08T04:29:52.683035"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 25000.0,
+                "timestamp": "2025-10-08T04:32:47.157436"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 25000.0,
+                "timestamp": "2025-10-08T04:33:20.645152"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 25000.0,
+                "timestamp": "2025-10-08T04:34:21.657360"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 10000.0,
+                "timestamp": "2025-10-08T04:34:44.073019"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 35000.0,
+                "timestamp": "2025-10-08T06:36:05.890952"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 450000.0,
+                "timestamp": "2025-10-08T06:36:47.957068"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 100000.0,
+                "timestamp": "2025-10-08T06:39:03.797898"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 100000.0,
+                "timestamp": "2025-10-08T06:39:36.367434"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 1000.0,
+                "timestamp": "2025-10-08T06:39:56.238556"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 20000.0,
+                "timestamp": "2025-10-08T06:40:13.024904"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 88299.0,
+                "timestamp": "2025-10-08T06:41:05.131078"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 10000.0,
+                "timestamp": "2025-10-08T15:22:42.535725"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 20000.0,
+                "timestamp": "2025-10-08T15:22:54.331630"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 10000.0,
+                "timestamp": "2025-10-08T19:17:11.926076"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 35000.0,
+                "timestamp": "2025-10-08T20:34:32.664387"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 25000.0,
+                "timestamp": "2025-10-08T20:34:41.874009"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 35000.0,
+                "timestamp": "2025-10-08T20:35:41.125175"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 10000.0,
+                "timestamp": "2025-10-08T21:38:43.508677"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 150000.0,
+                "timestamp": "2025-10-09T21:20:42.923872"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 25000.0,
+                "timestamp": "2025-10-09T21:21:06.938084"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 25000.0,
+                "timestamp": "2025-10-09T21:21:13.816052"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 1000.0,
+                "description": "Gaji",
+                "timestamp": "2025-10-10T00:23:26.609685+07:00"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 1000.0,
+                "description": "Jajan",
+                "timestamp": "2025-10-10T00:23:50.463844+07:00"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 9299.0,
+                "description": "No",
+                "timestamp": "2025-10-10T00:53:19.678047+07:00"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 1799.0,
+                "description": "No",
+                "timestamp": "2025-10-10T00:53:50.943363+07:00"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 4000.0,
+                "description": "Minuman \ud83c\udf7b",
+                "timestamp": "2025-10-10T08:46:02.199814+07:00"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 12000.0,
+                "description": "Bensin \ud83c\udfcd",
+                "timestamp": "2025-10-10T08:46:27.757569+07:00"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 8000.0,
+                "description": "Rokok \ud83d\udeac",
+                "timestamp": "2025-10-10T08:46:47.643303+07:00"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 25000.0,
+                "description": "Vpn",
+                "timestamp": "2025-10-10T14:11:01.689255+07:00"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 25000.0,
+                "description": "Vpn",
+                "timestamp": "2025-10-10T14:11:12.205551+07:00"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 12000.0,
+                "description": "Seblak",
+                "timestamp": "2025-10-10T22:09:01.371911+07:00"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 10000.0,
+                "description": "Rokok",
+                "timestamp": "2025-10-10T23:20:40.076964+07:00"
+            },
+            {
+                "type": "pengeluaran",
+                "amount": 1000.0,
+                "description": "Test",
+                "timestamp": "2025-10-10T23:29:12.623320+07:00"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 1000.0,
+                "description": "Test",
+                "timestamp": "2025-10-10T23:29:40.535982+07:00"
+            }
+        ],
+        "menunggu_input_notif": false
+    },
+    "6507383584": {
+        "chat_id": 6507383584,
+        "transactions": [],
+        "menunggu_input_notif": true
+    },
+    "1143835701": {
+        "chat_id": 1143835701,
+        "transactions": [],
+        "menunggu_input_notif": true
+    },
+    "8390191020": {
+        "chat_id": 8390191020,
+        "transactions": [
+            {
+                "type": "pemasukan",
+                "amount": 600000.0,
+                "description": "Uang saat ini",
+                "timestamp": "2025-10-10T00:50:43.766219+07:00"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 6000.0,
+                "description": "Uang saat ini",
+                "timestamp": "2025-10-10T00:51:01.485314+07:00"
+            },
+            {
+                "type": "pemasukan",
+                "amount": 95799.0,
+                "description": "Saldo di dana saat ini",
+                "timestamp": "2025-10-10T00:51:48.725420+07:00"
+            }
+        ],
+        "menunggu_input_notif": false
+    },
+    "8069551130": {
+        "chat_id": 8069551130,
+        "transactions": [],
+        "menunggu_input_notif": true
+    },
+    "5914166834": {
+        "chat_id": 5914166834,
+        "transactions": [],
+        "menunggu_input_notif": true
+    },
+    "8379034929": {
+        "chat_id": 8379034929,
+        "transactions": [],
+        "menunggu_input_notif": true
+    }
+}
