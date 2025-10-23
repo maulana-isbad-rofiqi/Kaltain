@@ -176,7 +176,6 @@ async def sultan_menu(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
         )
 
 # --- FITUR KALKULASI TARGET ---
-# (Tidak ada perubahan di sini)
 async def kalkulasi(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     reset_notification_state(update.effective_user.id)
     reply_keyboard = [["Bulan", "Tahun"]]
@@ -319,7 +318,6 @@ async def restart_percakapan(update: Update, context: ContextTypes.DEFAULT_TYPE)
     return ConversationHandler.END
 
 # --- FITUR DOMPET SAYA ---
-# (Tidak ada perubahan di sini)
 async def dompet(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     reset_notification_state(update.effective_user.id)
     user_id = str(update.effective_user.id)
@@ -361,41 +359,173 @@ async def dompet(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
          await update.callback_query.edit_message_text(text=pesan, parse_mode='Markdown', reply_markup=reply_markup)
     else:
         await context.bot.send_message(chat_id=chat_id, text=pesan, parse_mode='Markdown', reply_markup=reply_markup)
+
+# FUNGSI YANG DIMODIFIKASI
 async def lihat_riwayat_filter(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
-    filter_type = query.data.split('_')[-1]
+    
+    filter_type = query.data.split('_')[-1] # 'semua', 'pemasukan', 'pengeluaran'
     user_id = str(update.effective_user.id)
     data = load_data()
-    transactions = data.get(user_id, {}).get("transactions", [])
-    if filter_type != "semua":
-        transactions = [t for t in transactions if t.get('type') == filter_type]
-    transactions.sort(key=lambda x: x["timestamp"], reverse=True)
-    judul_filter = filter_type.capitalize()
-    pesan_riwayat = f"📜 *Riwayat Transaksi ({judul_filter})*\n_Menampilkan 10 transaksi terakhir._\n\n"
-    if not transactions:
+    
+    all_transactions = data.get(user_id, {}).get("transactions", [])
+    all_transactions.sort(key=lambda x: x["timestamp"], reverse=True)
+    
+    transactions_to_display = []
+    
+    # --- MODIFIKASI JUDUL ---
+    if filter_type == "semua":
+        transactions_to_display = all_transactions[:10] # Hanya 10 terakhir untuk tampilan awal
+        judul_filter = "Semua (10 Terakhir)"
+    else:
+        # Filter berdasarkan tipe dan ambil 10 terakhir
+        transactions_to_display = [t for t in all_transactions if t.get('type') == filter_type][:10]
+        judul_filter = f"{filter_type.capitalize()} (10 Terakhir)"
+
+    pesan_riwayat = f"📜 *Riwayat Transaksi ({judul_filter})*\n\n"
+    
+    if not transactions_to_display:
         pesan_riwayat += "_Tidak ada riwayat transaksi untuk kategori ini._"
     else:
-        for t in transactions[:10]:
+        for t in transactions_to_display:
             t_date = datetime.fromisoformat(t["timestamp"]).strftime("%d/%m/%y %H:%M")
             t_type = "➕" if t["type"] == "pemasukan" else "➖"
             keterangan = t.get("description", "Tanpa Keterangan")
             pesan_riwayat += f"`{t_type} Rp {t['amount']:,.0f}` - *{keterangan}*\n`({t_date})`\n"
+
+    # --- MODIFIKASI Keyboard ---
     keyboard_inline = [
-        [
+        [ # Tombol filter
             InlineKeyboardButton("Semua", callback_data="lihat_riwayat_semua"),
             InlineKeyboardButton("Pemasukan", callback_data="lihat_riwayat_pemasukan"),
             InlineKeyboardButton("Pengeluaran", callback_data="lihat_riwayat_pengeluaran"),
-        ],
-        [InlineKeyboardButton("⬅️ Kembali ke Dompet", callback_data="kembali_ke_dompet")]
+        ]
+    ]
+    
+    # --- LOGIKA BARU: Tambahkan tombol arsip bulanan HANYA jika filternya "semua" ---
+    if filter_type == "semua":
+        pesan_riwayat += "\n*Arsip Bulanan:*" # Tambahkan sub-judul
+        
+        unique_months = {} # Gunakan dict untuk menyimpan { (tahun, bulan): "Nama Bulan Tahun" }
+        # Format nama bulan pendek
+        nama_bulan_short = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+        
+        for t in all_transactions: # Pindai SEMUA transaksi
+            t_date = datetime.fromisoformat(t["timestamp"])
+            month_key = (t_date.year, t_date.month)
+            if month_key not in unique_months:
+                # Buat nama tombol, e.g., "Okt 2025"
+                month_name = f"{nama_bulan_short[t_date.month - 1]} {t_date.year}"
+                unique_months[month_key] = month_name
+        
+        month_buttons_rows = []
+        # Urutkan bulan dari yang terbaru (karena key-nya (tahun, bulan))
+        sorted_months_keys = sorted(unique_months.keys(), reverse=True)
+        
+        row = []
+        for month_key in sorted_months_keys:
+            year, month = month_key
+            month_name = unique_months[month_key]
+            callback_data = f"riwayat_bulan_{year}_{month}"
+            
+            row.append(InlineKeyboardButton(month_name, callback_data=callback_data))
+            
+            if len(row) == 3: # Buat 3 tombol per baris
+                month_buttons_rows.append(row)
+                row = []
+        if row: # Tambahkan sisa tombol jika ada
+            month_buttons_rows.append(row)
+        
+        # Tambahkan baris tombol bulan ke keyboard utama
+        keyboard_inline.extend(month_buttons_rows)
+    
+    # Tombol Kembali ke Dompet (selalu ada di paling bawah)
+    keyboard_inline.append([InlineKeyboardButton("⬅️ Kembali ke Dompet", callback_data="kembali_ke_dompet")])
+    # --- Akhir Modifikasi Keyboard ---
+
+    reply_markup = InlineKeyboardMarkup(keyboard_inline)
+    # Gunakan edit_message_text untuk memperbarui tampilan
+    await query.edit_message_text(text=pesan_riwayat, parse_mode='Markdown', reply_markup=reply_markup)
+
+
+# --- FUNGSI BARU: Untuk menangani tampilan arsip bulanan ---
+async def lihat_riwayat_bulanan(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()
+    
+    # Ekstrak tahun dan bulan dari callback_data, e.g., "riwayat_bulan_2025_10"
+    try:
+        _, _, year_str, month_str = query.data.split('_')
+        year = int(year_str)
+        month = int(month_str)
+    except (ValueError, IndexError):
+        await query.edit_message_text("Error: Data riwayat bulanan tidak valid.")
+        return
+
+    user_id = str(update.effective_user.id)
+    data = load_data()
+    all_transactions = data.get(user_id, {}).get("transactions", [])
+    
+    monthly_transactions = []
+    total_pemasukan = 0
+    total_pengeluaran = 0
+    
+    # Filter transaksi HANYA untuk bulan dan tahun yang dipilih
+    for t in all_transactions:
+        t_date = datetime.fromisoformat(t["timestamp"])
+        if t_date.year == year and t_date.month == month:
+            monthly_transactions.append(t)
+            if t["type"] == "pemasukan":
+                total_pemasukan += t["amount"]
+            elif t["type"] == "pengeluaran":
+                total_pengeluaran += t["amount"]
+    
+    # Urutkan dari yang terbaru di bulan itu
+    monthly_transactions.sort(key=lambda x: x["timestamp"], reverse=True)
+    
+    # Nama bulan lengkap untuk judul
+    nama_bulan_full = [
+        "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+        "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ]
+    judul_bulan = f"{nama_bulan_full[month - 1]} {year}"
+    
+    pesan_riwayat = f"📜 *Arsip Transaksi: {judul_bulan}*\n\n"
+    
+    if not monthly_transactions:
+        pesan_riwayat += "_Tidak ada transaksi di bulan ini._"
+    else:
+        for t in monthly_transactions:
+            # Format tanggal yang lebih ringkas untuk tampilan bulanan
+            t_date = datetime.fromisoformat(t["timestamp"]).strftime("%d/%m %H:%M")
+            t_type = "➕" if t["type"] == "pemasukan" else "➖"
+            keterangan = t.get("description", "Tanpa Keterangan")
+            # Format sedikit berbeda agar lebih rapi
+            pesan_riwayat += f"`{t_date}` | `{t_type} Rp {t['amount']:,.0f}`\n*{keterangan}*\n\n"
+    
+    # Tambahkan ringkasan bulanan
+    pesan_riwayat += "--- \n"
+    pesan_riwayat += f"📊 *Ringkasan Bulan Ini:*\n"
+    pesan_riwayat += f"Pemasukan: `Rp {total_pemasukan:,.0f}`\n"
+    pesan_riwayat += f"Pengeluaran: `Rp {total_pengeluaran:,.0f}`\n"
+    pesan_riwayat += f"Arus Kas: `Rp {total_pemasukan - total_pengeluaran:,.0f}`"
+
+    keyboard_inline = [
+        # Tombol ini akan mengembalikan user ke tampilan riwayat (yang 10 terakhir + tombol bulan)
+        [InlineKeyboardButton("⬅️ Kembali ke Riwayat", callback_data="lihat_riwayat_semua")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard_inline)
+    
     await query.edit_message_text(text=pesan_riwayat, parse_mode='Markdown', reply_markup=reply_markup)
+
+
 async def pemasukan_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
     await query.edit_message_text(text="Masukkan jumlah pemasukan baru:")
     return PEMASUKAN_AMOUNT
+
 async def pemasukan_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
         amount = float(update.message.text)
@@ -408,6 +538,7 @@ async def pemasukan_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -
     except ValueError:
         await update.message.reply_text("Format salah. Harap masukkan angka saja.")
         return PEMASUKAN_AMOUNT
+
 async def pemasukan_keterangan(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = str(update.effective_user.id)
     amount = context.user_data['pemasukan_amount']
@@ -429,11 +560,13 @@ async def pemasukan_keterangan(update: Update, context: ContextTypes.DEFAULT_TYP
     context.user_data.clear()
     await dompet(update, context) 
     return ConversationHandler.END
+
 async def pengeluaran_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
     await query.edit_message_text(text="Masukkan jumlah pengeluaran baru:")
     return PENGELUARAN_AMOUNT
+
 async def pengeluaran_amount(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     try:
         amount = float(update.message.text)
@@ -446,6 +579,7 @@ async def pengeluaran_amount(update: Update, context: ContextTypes.DEFAULT_TYPE)
     except ValueError:
         await update.message.reply_text("Format salah. Harap masukkan angka saja.")
         return PENGELUARAN_AMOUNT
+
 async def pengeluaran_keterangan(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user_id = str(update.effective_user.id)
     amount = context.user_data['pengeluaran_amount']
@@ -467,11 +601,13 @@ async def pengeluaran_keterangan(update: Update, context: ContextTypes.DEFAULT_T
     context.user_data.clear()
     await dompet(update, context)
     return ConversationHandler.END
+
 async def hapus_data_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     query = update.callback_query
     await query.answer()
     await query.edit_message_text(text="⚠️ *PERINGATAN*\nAnda yakin ingin menghapus seluruh data dompet? Ketik `YA` untuk konfirmasi.", parse_mode='Markdown')
     return KONFIRMASI_HAPUS
+
 async def hapus_data_konfirmasi(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     if update.message.text.upper() == 'YA':
         user_id = str(update.effective_user.id)
@@ -484,13 +620,13 @@ async def hapus_data_konfirmasi(update: Update, context: ContextTypes.DEFAULT_TY
         await update.message.reply_text("Aksi dibatalkan.")
     await dompet(update, context)
     return ConversationHandler.END
+
 async def cancel(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     await update.message.reply_text("Aksi dibatalkan.")
     await start(update, context) 
     return ConversationHandler.END
 
 # --- NOTIFIKASI & INPUT LANGSUNG ---
-# (Tidak ada perubahan di sini)
 async def callback_notifikasi(context: ContextTypes.DEFAULT_TYPE):
     data = load_data()
     chat_ids_and_users = {user_info["chat_id"]: user_id for user_id, user_info in data.items() if "chat_id" in user_info}
@@ -504,6 +640,7 @@ async def callback_notifikasi(context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             logger.error(f"Gagal mengirim notifikasi ke {chat_id}: {e}")
     save_data(data)
+
 async def handle_notif_input(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = str(update.effective_user.id)
     data = load_data()
@@ -595,7 +732,11 @@ def main() -> None:
     application.add_handler(CommandHandler("sultan", sultan_menu))
     application.add_handler(MessageHandler(filters.Regex("^👑 Sultan$"), sultan_menu))
     
+    # --- HANDLER BARU UNTUK RIWAYAT ---
     application.add_handler(CallbackQueryHandler(lihat_riwayat_filter, pattern='^lihat_riwayat_'))
+    application.add_handler(CallbackQueryHandler(lihat_riwayat_bulanan, pattern='^riwayat_bulan_'))
+    # --- AKHIR HANDLER BARU ---
+    
     application.add_handler(CallbackQueryHandler(dompet, pattern='^kembali_ke_dompet$'))
 
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_notif_input), group=1)
@@ -604,7 +745,7 @@ def main() -> None:
     for hour in range(8, 23):
         job_queue.run_daily(callback_notifikasi, time=time(hour=hour, minute=0, tzinfo=timezone_jakarta))
 
-    print("Bot Kaltain (v12 - About Menu) sedang berjalan...")
+    print("Bot Kaltain (v13 - Arsip Bulanan) sedang berjalan...")
     application.run_polling()
 
 if __name__ == "__main__":
@@ -614,3 +755,4 @@ if __name__ == "__main__":
         print("Menginstall library 'pytz'...")
         os.system('pip install pytz')
     main()
+
